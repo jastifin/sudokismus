@@ -1,0 +1,9 @@
+%% encoding: UTF-8
+{application,sudoku}.
+{packages,[]}.
+{modules,[sudoku_algoritmus,sudoku_algoritmus_test,sudoku_app,
+          sudoku_boardismus,sudoku_boardismus_test,sudoku_event_handlerismus,
+          sudoku_event_handlerismus_test,sudoku_gen_eventus,
+          sudoku_gen_eventus_test,sudoku_messagismus,sudoku_messagismus_test,
+          sudoku_supitus,sudoku_supitus_test,sudoku_utilitus,
+          sudoku_utilitus_test]}.

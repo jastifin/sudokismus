@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Module sudoku_boardismus</title>
+<link rel="stylesheet" type="text/css" href="stylesheet.css" title="EDoc">
+</head>
+<body bgcolor="white">
+<div class="navbar"><a name="#navbar_top"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<hr>
+
+<h1>Module sudoku_boardismus</h1>
+<ul class="index"><li><a href="#description">Description</a></li><li><a href="#types">Data Types</a></li><li><a href="#index">Function Index</a></li><li><a href="#functions">Function Details</a></li></ul>Sudoku board.
+<p>Copyright © 2014 Juha Stalnacke
+  This file is part of Sudokismus.
+ 
+  Sudokismus is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+ 
+  Sudokismus is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with Sudokismus.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</p>
+
+<p><b>Authors:</b> Juha Stalnacke (<a href="mailto:juha.stalnacke@gmail.com"><tt>juha.stalnacke@gmail.com</tt></a>).</p>
+
+<h2><a name="description">Description</a></h2>Sudoku board
+<h2><a name="types">Data Types</a></h2>
+
+<h3 class="typedecl"><a name="type-element_info">element_info()</a></h3>
+<p><tt>element_info() = {Row::non_neg_integer(), Col::non_neg_integer(), Zone::non_neg_integer(), Numbers::[non_neg_integer()]}</tt></p>
+
+
+<h2><a name="index">Function Index</a></h2>
+<table width="100%" border="1" cellspacing="0" cellpadding="2" summary="function index"><tr><td valign="top"><a href="#belongs_to_cell-3">belongs_to_cell/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#count_numbers_in_col-2">count_numbers_in_col/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#count_numbers_in_row-2">count_numbers_in_row/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#extract_cols-1">extract_cols/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#extract_rows-1">extract_rows/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#extract_zones-1">extract_zones/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#find_positions-1">find_positions/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#find_same_numbers-2">find_same_numbers/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#find_same_positions-2">find_same_positions/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_cell-1">get_cell/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_cell_ids-0">get_cell_ids/0</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_col-1">get_col/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_col_ids-0">get_col_ids/0</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_other_cells-1">get_other_cells/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_other_cols-1">get_other_cols/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_other_rows-1">get_other_rows/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_row-1">get_row/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_row_ids-0">get_row_ids/0</a></td><td></td></tr>
+<tr><td valign="top"><a href="#get_value-3">get_value/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#is_done-1">is_done/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#read_file-1">read_file/1</a></td><td></td></tr>
+<tr><td valign="top"><a href="#remove_and_set_values-2">remove_and_set_values/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#remove_from_col-3">remove_from_col/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#remove_from_row-3">remove_from_row/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#remove_from_zone-3">remove_from_zone/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#replace_lesser_values-3">replace_lesser_values/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#replace_value-2">replace_value/2</a></td><td></td></tr>
+<tr><td valign="top"><a href="#set_lesser_values-3">set_lesser_values/3</a></td><td></td></tr>
+<tr><td valign="top"><a href="#set_values-2">set_values/2</a></td><td></td></tr>
+</table>
+
+<h2><a name="functions">Function Details</a></h2>
+
+<h3 class="function"><a name="belongs_to_cell-3">belongs_to_cell/3</a></h3>
+<div class="spec">
+<p><tt>belongs_to_cell(Row, Col, Values) -&gt; boolean()</tt>
+<ul class="definitions"><li><tt>Row = integer()</tt></li><li><tt>Col = integer()</tt></li><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="count_numbers_in_col-2">count_numbers_in_col/2</a></h3>
+<div class="spec">
+<p><tt>count_numbers_in_col(Values, Col) -&gt; List</tt>
+<ul class="definitions"><li><tt>Values = [<a href="sudoku_boardismus.html#type-element_info">sudoku_boardismus:element_info()</a>]</tt></li><li><tt>Col = non_neg_integer()</tt></li><li><tt>List = [Count]</tt></li><li><tt>Count = integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="count_numbers_in_row-2">count_numbers_in_row/2</a></h3>
+<div class="spec">
+<p><tt>count_numbers_in_row(Values, Row) -&gt; List</tt>
+<ul class="definitions"><li><tt>Values = [<a href="sudoku_boardismus.html#type-element_info">sudoku_boardismus:element_info()</a>]</tt></li><li><tt>List = [Count]</tt></li><li><tt>Row = integer()</tt></li><li><tt>Count = integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="extract_cols-1">extract_cols/1</a></h3>
+<div class="spec">
+<p><tt>extract_cols(Values) -&gt; ColIndexes</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>ColIndexes = [Index]</tt></li><li><tt>Index = integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="extract_rows-1">extract_rows/1</a></h3>
+<div class="spec">
+<p><tt>extract_rows(Values) -&gt; RowIndexes</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>RowIndexes = [Index]</tt></li><li><tt>Index = integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="extract_zones-1">extract_zones/1</a></h3>
+<div class="spec">
+<p><tt>extract_zones(Values) -&gt; ZoneIndexes</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>ZoneIndexes = [non_neg_integer()]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="find_positions-1">find_positions/1</a></h3>
+<div class="spec">
+<p><tt>find_positions(Values) -&gt; [[{Row, Col}]]</tt>
+<ul class="definitions"><li><tt>Values = [<a href="sudoku_boardismus.html#type-element_info">sudoku_boardismus:element_info()</a>]</tt></li><li><tt>Row = non_neg_integer()</tt></li><li><tt>Col = non_neg_integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="find_same_numbers-2">find_same_numbers/2</a></h3>
+<div class="spec">
+<p><tt>find_same_numbers(Numbers, Values) -&gt; [<a href="sudoku_boardismus.html#type-element_info">sudoku_boardismus:element_info()</a>]</tt>
+<ul class="definitions"><li><tt>Numbers = [non_neg_integer()]</tt></li><li><tt>Values = [<a href="sudoku_boardismus.html#type-element_info">sudoku_boardismus:element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="find_same_positions-2">find_same_positions/2</a></h3>
+<div class="spec">
+<p><tt>find_same_positions(Positions, NPositions) -&gt; [{N1, [{Row, Col}]}]</tt>
+<ul class="definitions"><li><tt>Positions = [{non_neg_integer(), non_neg_integer()}]</tt></li><li><tt>NPositions = [{N2, [{non_neg_integer(), non_neg_integer()}]}]</tt></li><li><tt>N1 = non_neg_integer()</tt></li><li><tt>Row = non_neg_integer()</tt></li><li><tt>Col = non_neg_integer()</tt></li><li><tt>N2 = non_neg_integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_cell-1">get_cell/1</a></h3>
+<div class="spec">
+<p><tt>get_cell(Values) -&gt; Zone | no_return()</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>Zone = non_neg_integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_cell_ids-0">get_cell_ids/0</a></h3>
+<div class="spec">
+<p><tt>get_cell_ids() -&gt; [atom()]</tt><br></p>
+</div>
+
+<h3 class="function"><a name="get_col-1">get_col/1</a></h3>
+<div class="spec">
+<p><tt>get_col(Values) -&gt; Col | no_return()</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>Col = non_neg_integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_col_ids-0">get_col_ids/0</a></h3>
+<div class="spec">
+<p><tt>get_col_ids() -&gt; [atom()]</tt><br></p>
+</div>
+
+<h3 class="function"><a name="get_other_cells-1">get_other_cells/1</a></h3>
+<div class="spec">
+<p><tt>get_other_cells(ThisCell) -&gt; [atom()]</tt>
+<ul class="definitions"><li><tt>ThisCell = atom()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_other_cols-1">get_other_cols/1</a></h3>
+<div class="spec">
+<p><tt>get_other_cols(ThisCol) -&gt; [atom()]</tt>
+<ul class="definitions"><li><tt>ThisCol = atom()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_other_rows-1">get_other_rows/1</a></h3>
+<div class="spec">
+<p><tt>get_other_rows(ThisRow) -&gt; [atom()]</tt>
+<ul class="definitions"><li><tt>ThisRow = atom()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_row-1">get_row/1</a></h3>
+<div class="spec">
+<p><tt>get_row(Values) -&gt; Row | no_return()</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>Row = non_neg_integer()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="get_row_ids-0">get_row_ids/0</a></h3>
+<div class="spec">
+<p><tt>get_row_ids() -&gt; [atom()]</tt><br></p>
+</div>
+
+<h3 class="function"><a name="get_value-3">get_value/3</a></h3>
+<div class="spec">
+<p><tt>get_value(Row, Col, Values) -&gt; <a href="#type-element_info">element_info()</a></tt>
+<ul class="definitions"><li><tt>Row = non_neg_integer()</tt></li><li><tt>Col = non_neg_integer()</tt></li><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="is_done-1">is_done/1</a></h3>
+<div class="spec">
+<p><tt>is_done(Values) -&gt; boolean()</tt>
+<ul class="definitions"><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="read_file-1">read_file/1</a></h3>
+<div class="spec">
+<p><tt>read_file(Filename) -&gt; [<a href="#type-element_info">element_info()</a>] | {error, term()}</tt>
+<ul class="definitions"><li><tt>Filename = string()</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="remove_and_set_values-2">remove_and_set_values/2</a></h3>
+<div class="spec">
+<p><tt>remove_and_set_values(ReplaceList, OldList) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="remove_from_col-3">remove_from_col/3</a></h3>
+<div class="spec">
+<p><tt>remove_from_col(Col, Numbers, List) -&gt; List2</tt>
+<ul class="definitions"><li><tt>Col = integer()</tt></li><li><tt>Numbers = [integer()]</tt></li><li><tt>List = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>List2 = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="remove_from_row-3">remove_from_row/3</a></h3>
+<div class="spec">
+<p><tt>remove_from_row(Row, Numbers, List) -&gt; List2</tt>
+<ul class="definitions"><li><tt>Row = integer()</tt></li><li><tt>Numbers = [integer()]</tt></li><li><tt>List = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>List2 = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="remove_from_zone-3">remove_from_zone/3</a></h3>
+<div class="spec">
+<p><tt>remove_from_zone(Zone, Numbers, Values) -&gt; Values2</tt>
+<ul class="definitions"><li><tt>Zone = non_neg_integer()</tt></li><li><tt>Numbers = [non_neg_integer()]</tt></li><li><tt>Values = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>Values2 = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="replace_lesser_values-3">replace_lesser_values/3</a></h3>
+<div class="spec">
+<p><tt>replace_lesser_values(Old, Replace1, Replace2) -&gt; New</tt>
+<ul class="definitions"><li><tt>Old = <a href="#type-element_info">element_info()</a></tt></li><li><tt>Replace1 = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>Replace2 = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>New = <a href="#type-element_info">element_info()</a></tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="replace_value-2">replace_value/2</a></h3>
+<div class="spec">
+<p><tt>replace_value(Old, Replace) -&gt; New</tt>
+<ul class="definitions"><li><tt>Old = <a href="#type-element_info">element_info()</a></tt></li><li><tt>Replace = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>New = <a href="#type-element_info">element_info()</a></tt></li></ul></p>
+</div>
+
+<h3 class="function"><a name="set_lesser_values-3">set_lesser_values/3</a></h3>
+<div class="spec">
+<p><tt>set_lesser_values(ReplaceList1, ReplaceList2, OldList) -&gt; any()</tt></p>
+</div>
+
+<h3 class="function"><a name="set_values-2">set_values/2</a></h3>
+<div class="spec">
+<p><tt>set_values(ReplaceList, OldList) -&gt; NewList</tt>
+<ul class="definitions"><li><tt>ReplaceList = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>OldList = [<a href="#type-element_info">element_info()</a>]</tt></li><li><tt>NewList = [<a href="#type-element_info">element_info()</a>]</tt></li></ul></p>
+</div>
+<hr>
+
+<div class="navbar"><a name="#navbar_bottom"></a><table width="100%" border="0" cellspacing="0" cellpadding="2" summary="navigation bar"><tr><td><a href="overview-summary.html" target="overviewFrame">Overview</a></td><td><a href="http://www.erlang.org/"><img src="erlang.png" align="right" border="0" alt="erlang logo"></a></td></tr></table></div>
+<p><i>Generated by EDoc, Nov 17 2014, 14:09:27.</i></p>
+</body>
+</html>
