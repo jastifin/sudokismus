@@ -1,17 +1,17 @@
 %% @author Juha Stalnacke <juha.stalnacke@gmail.com>
 %% @copyright 2014 Juha Stalnacke
 %% This file is part of Sudokismus.
-%% 
+%%
 %% Sudokismus is free software: you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
 %% the Free Software Foundation, either version 3 of the License, or
 %% (at your option) any later version.
-%% 
+%%
 %% Sudokismus is distributed in the hope that it will be useful,
 %% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %% GNU General Public License for more details.
-%% 
+%%
 %% You should have received a copy of the GNU General Public License
 %% along with Sudokismus.  If not, see <http://www.gnu.org/licenses/>.
 %% @end
@@ -53,17 +53,39 @@ init({{CellType, Id}}) ->
 handle_event(_, State) when State#cell_state.is_done == true ->
     {ok, State};
 
+handle_event(Event, State) when element(3, Event) == xwing_possibility ->
+    case element(1, Event) == State#cell_state.type of
+        true  -> Msgs = sudoku_messagismus:get_xwing_set_messages(State#cell_state.values, Event) -- State#cell_state.sent_msgs,
+
+                 sudoku_messagismus:send_others(State#cell_state.id, Msgs),
+
+                 {ok, State#cell_state{sent_msgs = State#cell_state.sent_msgs ++ Msgs}};
+        false -> {ok, State}
+    end;
+
 handle_event(Event, State) ->
     NewValuesTmp = sudoku_event_handlerismus:do_event_handling(Event, State),
     validate_values(State#cell_state.values, NewValuesTmp, Event),
     NewValues    = sudoku_algoritmus:perform_cleanup(NewValuesTmp),
+
     NewMsgs      = sudoku_messagismus:generate_msgs(NewValues, State#cell_state.type, State#cell_state.id),
     check_duplicates(NewMsgs),
 
     Msgs = NewMsgs -- State#cell_state.sent_msgs,
     check_duplicates(Msgs),
     check_duplicates(State#cell_state.sent_msgs ++ Msgs),
-    sudoku_messagismus:send_others(State#cell_state.id, Msgs),
+
+    XwingRegisterTmp = case NewValues =:= State#cell_state.values of
+                           true  -> State#cell_state.xwing_register;
+                           false -> sudoku_xwing_registerismus:reset(State#cell_state.xwing_register)
+                       end,
+    XwingRegister    = sudoku_xwing_registerismus:update_register(
+                         sudoku_messagismus:generate_xwing_possibility_messages(
+                           State#cell_state.type, State#cell_state.id, NewValues),
+                         XwingRegisterTmp),
+    XwingMsgs        = sudoku_xwing_registerismus:get_xwing_possibility_messages(XwingRegister),
+
+    sudoku_messagismus:send_others(State#cell_state.id, Msgs ++ XwingMsgs),
 
     IsDone = sudoku_boardismus:is_done(NewValues),
     case IsDone == true andalso State#cell_state.type == row of
@@ -71,9 +93,10 @@ handle_event(Event, State) ->
         false -> ok
     end,
 
-    {ok, State#cell_state{values    = NewValues,
-                          sent_msgs = State#cell_state.sent_msgs ++ Msgs,
-                          is_done   = IsDone
+    {ok, State#cell_state{values         = NewValues,
+                          sent_msgs      = State#cell_state.sent_msgs ++ Msgs,
+                          is_done        = IsDone,
+                          xwing_register = XwingRegister
                          }}.
 
 handle_call({init, Values}, State) ->
@@ -86,7 +109,7 @@ handle_call({dump_state}, State) ->
     {ok, State, State};
 
 handle_call(Request, State) ->
-    io:format("~p: ~p~n",[State, Request]),
+    io:format("~p: ~p~n", [State, Request]),
     {ok, ok, State}.
 
 handle_info(_Info, State) ->
@@ -105,7 +128,10 @@ format_status(_Opt, _List) ->
     List ::[any()].
 check_duplicates(List) ->
     lists:foldl(fun(E, AccIn) ->
-            case lists:member(E, AccIn) of true -> io:format("--------> DUPLICATE ~p ~n",[E]), erlang:error(duplicate); false -> [E | AccIn] end
+            case lists:member(E, AccIn) of
+                true  -> io:format("--------> DUPLICATE ~p ~n", [E]), erlang:error(duplicate);
+                false -> [E | AccIn]
+            end
         end, [], List),
     ok.
 
@@ -121,8 +147,11 @@ validate_values(OldValues, Values, _Event) ->
       end, Values).
 
 reset_state(State, Values) ->
-    State#cell_state{values = Values, sent_msgs = [], is_done = false}.
-
+    State#cell_state{
+        values         = Values,
+        sent_msgs      = [],
+        is_done        = false,
+        xwing_register = sudoku_xwing_registerismus:reset(State#cell_state.xwing_register)}.
 
 %% print(Event, State, Senders, Receivers)  ->
 %%     case length(Senders) == 0 orelse lists:member(element(2, Event), Senders) of

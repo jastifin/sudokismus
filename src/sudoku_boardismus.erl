@@ -1,17 +1,17 @@
 %% @author Juha Stalnacke <juha.stalnacke@gmail.com>
 %% @copyright 2014 Juha Stalnacke
 %% This file is part of Sudokismus.
-%% 
+%%
 %% Sudokismus is free software: you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
 %% the Free Software Foundation, either version 3 of the License, or
 %% (at your option) any later version.
-%% 
+%%
 %% Sudokismus is distributed in the hope that it will be useful,
 %% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %% GNU General Public License for more details.
-%% 
+%%
 %% You should have received a copy of the GNU General Public License
 %% along with Sudokismus.  If not, see <http://www.gnu.org/licenses/>.
 %% @end
@@ -35,6 +35,7 @@
          get_other_rows/1,
          get_other_cols/1,
          get_other_cells/1,
+         get_xwing_possibilities/1,
          remove_from_col/3,
          remove_from_row/3,
          remove_and_set_values/2,
@@ -61,7 +62,7 @@
 -spec read_file(Filename) -> [element_info()] | {error, term()} when
     Filename ::string().
 read_file(Filename) ->
-	case file:open(Filename,[read]) of
+	case file:open(Filename, [read]) of
 		{ok, Device} ->
 			read_lines(Device);
 		{error, Reason} ->
@@ -82,7 +83,7 @@ read_line(Device, Board, LineNmb) ->
 	end.
 
 process_line(Line, Board, LineNmb) ->
-%    re:run("1:2;1:2,3,4;2:0\n","(([1-9]):([,0-9]*))(?:;|\n|)",[global,{capture, all_but_first, list}]).
+%    re:run("1:2;1:2,3,4;2:0\n", "(([1-9]):([,0-9]*))(?:;|\n|)", [global, {capture, all_but_first, list}]).
     case re:run(Line, "(([1-9]):([,0-9]*))(?:;|\n|)", [global, {capture, all_but_first, list}]) of
         {match, Captured} ->
             ?assert(length(Captured) == 9),
@@ -162,7 +163,7 @@ get_cell(Values) ->
     Index      ::integer().
 
 extract_rows(Values) ->
-    extract_direction(Values,[], row).
+    extract_direction(Values, [], row).
 
 %% extract_cols(Values)
 %% Return unique column indexes.
@@ -173,7 +174,7 @@ extract_rows(Values) ->
     Index      ::integer().
 
 extract_cols(Values) ->
-    extract_direction(Values,[], col).
+    extract_direction(Values, [], col).
 
 %% extract_zones(Values)
 
@@ -407,14 +408,12 @@ belongs_to_cell(Row, Col, [_ | Tail]) ->
 %% generate_msgs(Values, CellType, CellId)
 
 -spec get_index(Direction) -> integer() when
-          Direction ::zone | row | col.
+          Direction ::row | col.
 
 get_index(row) ->
     1;
 get_index(col) ->
-    2;
-get_index(zone) ->
-    3.
+    2.
 
 % get_value(Row, Col, Values)
 
@@ -498,9 +497,9 @@ find_same_numbers(Numbers, Values) ->
     find_same_elements(Numbers, Values, 4).
 
 %% find_same_positions(Positions, NPositions)
--spec find_same_positions(Positions, NPositions) -> [{N1,[{Row, Col}]}] when
+-spec find_same_positions(Positions, NPositions) -> [{N1, [{Row, Col}]}] when
     Positions  ::[{non_neg_integer(), non_neg_integer()}],
-    NPositions ::[{N2,[{non_neg_integer(), non_neg_integer()}]}],
+    NPositions ::[{N2, [{non_neg_integer(), non_neg_integer()}]}],
     N1         ::non_neg_integer(),
     Row        ::non_neg_integer(),
     Col        ::non_neg_integer(),
@@ -509,7 +508,7 @@ find_same_numbers(Numbers, Values) ->
 find_same_positions(Positions, NPositions) ->
     find_same_elements(Positions, NPositions, 2).
 
-find_same_elements(Elements,Haystack,Idx) ->
+find_same_elements(Elements, Haystack, Idx) ->
     lists:filter(
       fun(Tuple) ->
               length(Elements) == length(element(Idx, Tuple)) andalso lists:all(
@@ -528,3 +527,18 @@ is_done(Values) ->
       fun({_, _, _, Numbers}) ->
               length(Numbers) == 1
       end, Values).
+
+%% get_xwing_possibilities(Values)
+
+-spec get_xwing_possibilities(Values) -> [{N, Positions}] when
+    Values    ::[sudoku_boardismus:element_info()],
+    N         ::non_neg_integer(),
+    Positions ::[{R, C}],
+    R         ::non_neg_integer(),
+    C         ::non_neg_integer().
+
+get_xwing_possibilities(Values) ->
+    lists:filter(
+      fun({_, List}) ->
+              length(List) == 2
+      end, lists:zip(lists:seq(1, 9), sudoku_boardismus:find_positions(Values))).

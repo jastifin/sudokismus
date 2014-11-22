@@ -15,12 +15,15 @@
 %% You should have received a copy of the GNU General Public License
 %% along with Sudokismus.  If not, see <http://www.gnu.org/licenses/>.
 %% @end
+
+
 -record(cell_state, {
-    type      = undefined::atom(),
-    id        = undefined::atom(),
-    values    = []::list({integer(),integer(),integer(),list(integer())}),
-    sent_msgs = []::list(tuple()),
-    is_done   = false::boolean()
+    type           = undefined::atom(),
+    id             = undefined::atom(),
+    values         = []::list({integer(),integer(),integer(),list(integer())}),
+    sent_msgs      = []::list(tuple()),
+    is_done        = false::boolean(),
+    xwing_register ::term()
     }).
 
 -define(SET_MAX_SIZE, 5).

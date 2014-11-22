@@ -1,17 +1,17 @@
 %% @author Juha Stalnacke <juha.stalnacke@gmail.com>
 %% @copyright 2014 Juha Stalnacke
 %% This file is part of Sudokismus.
-%% 
+%%
 %% Sudokismus is free software: you can redistribute it and/or modify
 %% it under the terms of the GNU General Public License as published by
 %% the Free Software Foundation, either version 3 of the License, or
 %% (at your option) any later version.
-%% 
+%%
 %% Sudokismus is distributed in the hope that it will be useful,
 %% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %% GNU General Public License for more details.
-%% 
+%%
 %% You should have received a copy of the GNU General Public License
 %% along with Sudokismus.  If not, see <http://www.gnu.org/licenses/>.
 %% @end
@@ -119,7 +119,7 @@ find_same_sets(Values, L) ->
                                   end
                           end, [], lists:zip(lists:seq(1, length(L_Sets)), L_Sets))),
 
-    % {n,positions} of numbers with L positions
+    % {n, positions} of numbers with L positions
     L_Positions = lists:filter(
                     fun({_, List}) ->
                             length(List) == L
