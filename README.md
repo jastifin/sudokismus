@@ -12,9 +12,9 @@ rebar compile
 
 # Data format
 
-Each row of the 9x9 grid is separated by newline and in each row the cells are separated by semicolons. Individual cells are
+Each row of the 9x9 grid is separated by newline and in each row the cells are separated by semicolon. Individual cells are
 coded as zone-x:numbers, where zone-x is the index (1-9) of the region and numbers is the comma-separated list of numbers in that cell. 
-The special value '0'  is shortcut for '1,2,3,4,5,6,7,8,9'. See [sample1.txt](./sample1.txt) as a example.
+The special value '0'  is shortcut for '1,2,3,4,5,6,7,8,9'. See [sample1.txt](./sample1.txt) as an example.
 
 # Usage
 
