@@ -23,7 +23,9 @@
 -include_lib("eunit/include/eunit.hrl").
 
 reset_test() ->
-    ?assertEqual(sudoku_xwing_registerismus:reset(), {xwing_register, []}).
+    Reg = sudoku_xwing_registerismus:reset(),
+    ?assertEqual(Reg, {xwing_register, []}),
+    ?assertEqual(sudoku_xwing_registerismus:reset(Reg), {xwing_register, []}).
 
 update_register_test() ->
     Msgs1 = [{col, col1, xwing_possibility, [{1, 2, 1, [4]}, {2, 2, 1, [4]}]}],

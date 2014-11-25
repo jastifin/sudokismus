@@ -22,14 +22,16 @@
 -include_lib("eunit/include/eunit.hrl").
 
 get_cell_test() ->
-    ?assertEqual(sudoku_boardismus:get_cell([{2, 1, 4, [5, 6]}]), 4).
+    ?assertEqual(sudoku_boardismus:get_cell([{2, 1, 4, [5, 6]}]), 4),
+    ?assertError(zone_undetermined, sudoku_boardismus:get_cell([{2, 1, 4, [5, 6]}, {3, 1, 5, [6]}])).
 
 get_row_test() ->
-    ?assertEqual(sudoku_boardismus:get_row([{2, 1, 4, [5, 6]}]), 2).
+    ?assertEqual(sudoku_boardismus:get_row([{2, 1, 4, [5, 6]}]), 2),
+    ?assertError(row_undetermined, sudoku_boardismus:get_row([{2, 1, 4, [5, 6]}, {3, 1, 4, [6]}])).
 
 get_col_test() ->
-    ?assertEqual(sudoku_boardismus:get_col([{2, 1, 4, [5, 6]}]), 1).
-
+    ?assertEqual(sudoku_boardismus:get_col([{2, 1, 4, [5, 6]}]), 1),
+    ?assertError(column_undetermined, sudoku_boardismus:get_col([{2, 1, 4, [5, 6]}, {3, 2, 4, [6]}])).
 
 belongs_to_cell_test() ->
     ?assertEqual(sudoku_boardismus:belongs_to_cell(1, 1, []), false),
@@ -162,3 +164,16 @@ find_same_numbers_test() ->
     ?assertEqual(sudoku_boardismus:find_same_numbers([1], [{1, 2, 3, [1]}]), [{1, 2, 3, [1]}]),
     ?assertEqual(sudoku_boardismus:find_same_numbers([1], [{1, 2, 3, [1, 2]}]), []),
     ?assertEqual(sudoku_boardismus:find_same_numbers([1, 2], [{1, 2, 3, [1, 2]}]), [{1, 2, 3, [1, 2]}]).
+
+is_done_test() ->
+    ?assert(sudoku_boardismus:is_done([{1, 2, 1, [2]}, {2, 4, 2, [2]}, {3, 4, 5, [4]}])),
+    ?assertNot(sudoku_boardismus:is_done([{1, 2, 1, [2]}, {2, 4, 2, [2]}, {3, 4, 5, [4, 5]}])).
+
+get_other_rows_test() ->
+    ?assertEqual(sudoku_boardismus:get_other_rows(row2), [row1, row3, row4, row5, row6, row7, row8, row9]).
+
+get_other_cols_test() ->
+    ?assertEqual(sudoku_boardismus:get_other_cols(col2), [col1, col3, col4, col5, col6, col7, col8, col9]).
+
+get_other_cells_test() ->
+    ?assertEqual(sudoku_boardismus:get_other_cells(cell2), [cell1, cell3, cell4, cell5, cell6, cell7, cell8, cell9]).

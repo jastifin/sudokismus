@@ -78,7 +78,15 @@ get_xwing_set_messages_test() ->
                    [{2, 2, 1, [1]},
                     {2, 3, 1, [1]},
                     {1, 2, 1, [1]},
-                    {1, 3, 1, [1]}]}]).
+                    {1, 3, 1, [1]}]}]),
+    ?assertEqual(sudoku_messagismus:get_xwing_set_messages(
+                   [{1, 2, 1, [1, 2]}, {2, 2, 1, [1, 3]}],
+                   {col, col2, xwing_possibility, [{1, 3, 1, [1]}, {2, 3, 1, [1]}]}),
+                 [{col, ignore, xwing_set,
+                   [{1, 2, 1, [1]},
+                    {2, 2, 1, [1]},
+                    {1, 3, 1, [1]},
+                    {2, 3, 1, [1]}]}]).
 
 generate_xwing_possibility_messages_test() ->
     ?assertEqual(sudoku_messagismus:generate_xwing_possibility_messages(
