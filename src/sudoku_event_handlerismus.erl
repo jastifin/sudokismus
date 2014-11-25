@@ -189,9 +189,10 @@ do_event_handling({cell, Zone, has_in_row, Row, N}, #cell_state{type = row, valu
     end;
 
 do_event_handling({cell, Zone, has_in_row, Row, N}, #cell_state{type = col, values = Values}) ->
-    case element(3, lists:keyfind(Row, 1, Values)) of
-        Zone -> Values;
-        _    -> sudoku_boardismus:remove_from_row(Row, [N], Values)
+    Value = sudoku_boardismus:get_value(Row, sudoku_boardismus:get_col(Values), Values),
+    case element(3, Value) of
+        Zone -> sudoku_boardismus:set_values([Value], sudoku_boardismus:remove_from_zone(Zone, [N], Values));
+        _    -> sudoku_boardismus:remove_from_row(Row, [N], sudoku_boardismus:remove_from_zone(Zone, [N], Values))
     end;
 
 do_event_handling({cell, Zone, has_in_row, Row, N}, #cell_state{type = cell, values = Values}) ->
@@ -199,9 +200,10 @@ do_event_handling({cell, Zone, has_in_row, Row, N}, #cell_state{type = cell, val
     sudoku_boardismus:remove_from_row(Row, [N], Values);
 
 do_event_handling({cell, Zone, has_in_col, Col, N}, #cell_state{type = row, values = Values}) ->
-    case element(3, lists:keyfind(Col, 2, Values)) of
-        Zone -> Values;
-        _    -> sudoku_boardismus:remove_from_col(Col, [N], Values)
+    Value = sudoku_boardismus:get_value(sudoku_boardismus:get_row(Values), Col, Values),
+    case element(3, Value) of
+        Zone -> sudoku_boardismus:set_values([Value], sudoku_boardismus:remove_from_zone(Zone, [N], Values));
+        _    -> sudoku_boardismus:remove_from_col(Col, [N], sudoku_boardismus:remove_from_zone(Zone, [N], Values))
     end;
 
 do_event_handling({cell, Zone, has_in_col, Col, N}, #cell_state{type = col, values = Values}) ->
@@ -214,11 +216,6 @@ do_event_handling({cell, Zone, has_in_col, Col, N}, #cell_state{type = col, valu
 do_event_handling({cell, Zone, has_in_col, Col, N}, #cell_state{type = cell, values = Values}) ->
     ?assertNotEqual(Zone, sudoku_boardismus:get_cell(Values)),
     sudoku_boardismus:remove_from_col(Col, [N], Values);
-
-%% do_event_handling({CellType, CellId, xwing_possibility, Positions}, #cell_state{values = Values}) ->
-%% %    io:format("~p~n", [{CellType, CellId, xwing_possibility, Positions}]),
-%%     Values;
-%%
 
 do_event_handling({row, _, xwing_set, Positions}, #cell_state{type = row, values = Values}) ->
     [{R1, C1, _, [N]}, {R1, C2, _, [N]}, {R3, _, _, [N]}, {R3, _, _, [N]}] = Positions,
@@ -234,30 +231,38 @@ do_event_handling({row, _, xwing_set, Positions}, #cell_state{type = col, values
                    fun(R, ValuesIn) ->
                            sudoku_boardismus:remove_from_row(R, [N], ValuesIn)
                    end, Values, lists:seq(1, 9) -- [R1, R3]);
-        false -> Values
+        false -> sudoku_boardismus:remove_from_row(R3, [N], sudoku_boardismus:remove_from_row(R1, [N], Values))
     end;
 
 do_event_handling({row, _, xwing_set, Positions}, #cell_state{type = cell, values = Values}) ->
     N = element(4, lists:nth(1, Positions)),
-    Backup = lists:map(
+    Backup = lists:filtermap(
                fun({Row, Col, _, _}) ->
-                       sudoku_boardismus:get_value(Row, Col, Values)
+                       case sudoku_boardismus:get_value(Row, Col, Values) of
+                           [] -> false;
+                           V  -> {true, V}
+                       end
                end, Positions),
 
     sudoku_boardismus:set_values(Backup, lists:foldl(
-                                   fun({_, Col, _, _}, ValuesIn) ->
-                                           sudoku_boardismus:remove_from_col(Col, N, ValuesIn)
+                                   fun({Row, Col, _, _}, ValuesIn) ->
+                                           sudoku_boardismus:remove_from_col(
+                                             Col, N, sudoku_boardismus:remove_from_row(Row, N, ValuesIn))
                                    end, Values, Positions));
 
 do_event_handling({col, _, xwing_set, Positions}, #cell_state{type = cell, values = Values}) ->
     N = element(4, lists:nth(1, Positions)),
-    Backup = lists:map(
+    Backup = lists:filtermap(
                fun({Row, Col, _, _}) ->
-                       sudoku_boardismus:get_value(Row, Col, Values)
+                       case sudoku_boardismus:get_value(Row, Col, Values) of
+                           [] -> false;
+                           V  -> {true, V}
+                       end
                end, Positions),
     sudoku_boardismus:set_values(Backup, lists:foldl(
-                                   fun({Row, _, _, _}, ValuesIn) ->
-                                           sudoku_boardismus:remove_from_row(Row, N, ValuesIn)
+                                   fun({Row, Col, _, _}, ValuesIn) ->
+                                           sudoku_boardismus:remove_from_row(
+                                             Row, N, sudoku_boardismus:remove_from_col(Col, N, ValuesIn))
                                    end, Values, Positions));
 
 do_event_handling({col, _, xwing_set, Positions}, #cell_state{type = row, values = Values}) ->
@@ -267,7 +272,7 @@ do_event_handling({col, _, xwing_set, Positions}, #cell_state{type = row, values
                    fun(C, ValuesIn) ->
                            sudoku_boardismus:remove_from_col(C, [N], ValuesIn)
                    end, Values, lists:seq(1, 9) -- [C1, C3]);
-        false -> Values
+        false -> sudoku_boardismus:remove_from_col(C3, [N], sudoku_boardismus:remove_from_col(C1, [N], Values))
     end;
 
 do_event_handling({col, _, xwing_set, Positions}, #cell_state{type = col, values = Values}) ->
